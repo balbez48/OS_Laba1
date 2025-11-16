@@ -1,0 +1,36 @@
+#!/bin/bash
+
+echo "--- ВЕРСИЯ ОС ---"
+if [ -f /etc/os-release ]; then
+    source /etc/os-release
+    echo "$PRETTY_NAME"
+else
+    echo "$(uname -s) $(uname -r)"
+fi
+echo
+
+echo "--- ПАМЯТЬ ---"
+total_ram=$(free -b | grep Mem: | awk '{print $2}')
+used_ram=$(free -b | grep Mem: | awk '{print $3}')
+ram_percent=$(free | grep Mem: | awk '{printf "%.1f", $3/$2 * 100}')
+
+echo "Физическая: $(echo "scale=2; $total_ram/1024/1024/1024" | bc) GB"
+echo "Использование: $ram_percent%"
+
+total_swap=$(free -b | grep Swap: | awk '{print $2}')
+used_swap=$(free -b | grep Swap: | awk '{print $3}')
+echo "Файл подкачки: $(echo "scale=2; $total_swap/1024/1024/1024" | bc) GB"
+echo
+
+echo "--- ПРОЦЕССОР ---"
+echo "Ядер: $(nproc)"
+echo "Архитектура: $(uname -m)"
+echo
+
+echo "--- СИСТЕМА ---"
+echo "Компьютер: $(hostname)"
+echo "Пользователь: $(whoami)"
+echo
+
+echo "--- ДИСКИ ---"
+df -h | grep -E '^/dev/' | awk '{print $1 " - " $2 " всего, " $4 " свободно"}'
